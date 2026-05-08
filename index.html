@@ -3,55 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>产线生产看板-全功能版</title>
+    <title>产线生产看板-全功能增强版</title>
     <style>
-        :root { --primary: #1890ff; --success: #52c41a; --danger: #ff4d4f; --text: #262626; }
-        body { font-family: -apple-system, sans-serif; margin: 0; background: #f0f2f5; color: var(--text); -webkit-tap-highlight-color: transparent; }
+        :root { --primary: #1890ff; --success: #52c41a; --danger: #ff4d4f; --warning: #faad14; }
+        body { font-family: -apple-system, sans-serif; margin: 0; background: #f0f2f5; font-size: 13px; }
         
-        /* 顶部导航 */
-        .header { background: #001529; color: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-        .header b { font-size: 16px; }
-        .btn-group { display: flex; gap: 8px; }
-        .btn { border: none; padding: 8px 12px; border-radius: 4px; color: white; font-weight: bold; cursor: pointer; font-size: 12px; }
-        .add-btn { background: var(--primary); }
-        .exp-btn { background: #fa8c16; }
+        .header { background: #001529; color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .btn-group { display: flex; gap: 5px; }
+        .btn { border: none; padding: 8px 10px; border-radius: 4px; color: white; font-size: 12px; cursor: pointer; }
 
-        /* 表格容器 */
         .table-container { width: 100%; overflow-x: auto; background: white; }
         table { width: 100%; border-collapse: collapse; min-width: 1000px; }
-        th { background: #fafafa; padding: 12px 8px; border-bottom: 2px solid #f0f0f0; font-size: 13px; color: #595959; }
-        td { border-bottom: 1px solid #f0f0f0; padding: 12px 8px; text-align: center; font-size: 14px; }
+        th { background: #fafafa; padding: 12px 8px; border-bottom: 2px solid #f0f0f0; }
+        td { border-bottom: 1px solid #f0f0f0; padding: 10px 8px; text-align: center; }
 
-        /* 报警行 */
-        tr.alarm { background: #fff1f0 !important; }
-        tr.alarm td { color: var(--danger); font-weight: bold; }
+        /* 状态样式 */
+        .status-tag { padding: 4px 8px; border-radius: 12px; font-weight: bold; font-size: 12px; }
+        .status-ok { background: #f6ffed; color: var(--success); border: 1px solid #b7eb8f; }
+        .status-fail { background: #fff1f0; color: var(--danger); border: 1px solid #ffa39e; animation: blink 1.5s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
-        /* 输入框样式 */
-        input { border: 1px solid #d9d9d9; border-radius: 4px; padding: 6px; width: 65px; text-align: center; outline: none; }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(24,144,255,0.2); }
-        .name-box { width: 100px; text-align: left; margin-bottom: 4px; font-weight: bold; }
+        /* 汇总卡片 */
+        .summary-card { margin: 15px; background: white; padding: 15px; border-radius: 8px; border-top: 4px solid #722ed1; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .sum-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .sum-table th { background: #f9f0ff; color: #722ed1; padding: 8px; }
+        .sum-table td { padding: 10px; border-bottom: 1px solid #f0f0f0; }
 
-        /* 进度条样式 */
-        .progress-container { width: 80px; background: #f5f5f5; border-radius: 10px; height: 8px; margin: 4px auto; overflow: hidden; }
-        .progress-bar { background: var(--success); height: 100%; transition: width 0.3s; }
-        .rate-text { font-size: 12px; font-weight: bold; color: var(--success); }
-
-        /* 按钮 */
-        .report-btn { background: var(--success); color: white; border: none; padding: 10px; border-radius: 4px; font-weight: bold; width: 100%; cursor: pointer; }
-        .reset-btn { border: none; background: none; color: #bfbfbf; font-size: 11px; cursor: pointer; margin-top: 5px; }
-
-        /* 底部汇总 */
-        .summary-card { margin: 15px; background: white; padding: 15px; border-radius: 8px; border-top: 4px solid #722ed1; }
-        .sum-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+        input { border: 1px solid #d9d9d9; border-radius: 4px; padding: 6px; width: 65px; text-align: center; }
+        .name-box { width: 90px; text-align: left; font-weight: bold; }
+        .progress-bar { height: 6px; background: #eee; border-radius: 3px; margin-top: 5px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--success); transition: width 0.5s; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <b>产线生产监控系统</b>
+    <strong>生产监控汇总</strong>
     <div class="btn-group">
-        <button class="btn exp-btn" onclick="exportData()">导出报表</button>
-        <button class="btn add-btn" onclick="addRow()">+ 新增设备</button>
+        <button class="btn" style="background:#fa8c16" onclick="exportData()">导出Excel</button>
+        <button class="btn" style="background:var(--primary)" onclick="addRow()">+设备</button>
     </div>
 </div>
 
@@ -59,12 +49,13 @@
     <table>
         <thead>
             <tr>
-                <th>设备/产品</th>
+                <th>设备/产品编号</th>
                 <th>周期(s)</th>
                 <th>穴数</th>
                 <th>时目标</th>
                 <th>已生产</th>
                 <th>达成率</th>
+                <th>状态</th>
                 <th>更新时间</th>
                 <th>日目标</th>
                 <th>操作</th>
@@ -75,145 +66,139 @@
 </div>
 
 <div class="summary-card">
-    <div style="font-weight:bold; color:#722ed1; margin-bottom:10px">📊 产品维度汇总</div>
-    <div id="summaryContent"></div>
+    <div style="font-weight:bold; color:#722ed1; font-size:15px;">📊 同产品编号实时汇总</div>
+    <table class="sum-table">
+        <thead>
+            <tr>
+                <th>产品编号</th>
+                <th>机台总数</th>
+                <th>累计产量</th>
+                <th>累计目标</th>
+                <th>整体进度</th>
+            </tr>
+        </thead>
+        <tbody id="summaryTable"></tbody>
+    </table>
 </div>
 
 <script>
-    // 数据持久化
-    var lines = JSON.parse(localStorage.getItem('MES_V5')) || [
-        { id: 1, name: '1号机', pcode: 'P001', cyc: 60, cav: 10, target: 5000, count: 0, lastTime: '-', start: new Date().getTime() }
+    var lines = JSON.parse(localStorage.getItem('PROD_SYSTEM_V6')) || [
+        { id: 1, name: '1号机', pcode: 'P001', cyc: 60, cav: 10, target: 5000, count: 0, lastTime: '-', startTime: new Date().getTime() }
     ];
 
     function render() {
-        var html = '';
-        var summary = {};
+        var tbody = document.getElementById('mainTable');
+        var stody = document.getElementById('summaryTable');
         var now = new Date().getTime();
+        var html = '';
+        var summaryMap = {}; // 用于汇总
 
         for (var i = 0; i < lines.length; i++) {
             var item = lines[i];
             
-            // 1. 自动计算小时目标
+            // 1. 自动换算小时目标
             var hTarget = Math.floor((3600 / (item.cyc || 1)) * (item.cav || 1));
             
-            // 2. 计算日达成率
-            var rate = item.target > 0 ? ((item.count / item.target) * 100).toFixed(1) : 0;
+            // 2. 状态判定（按开机时长计算应产）
+            var passedHrs = (now - item.startTime) / 3600000;
+            var expectedNow = Math.floor(passedHrs * hTarget);
+            var isOk = item.count >= expectedNow || passedHrs < 0.01;
             
-            // 3. 计算预警 (按秒级进度计算)
-            var passedHrs = (now - item.start) / 3600000;
-            var expect = Math.floor(passedHrs * hTarget);
-            var isAlarm = (item.count < expect) && (passedHrs > 0.01);
+            // 3. 达成率计算
+            var rate = item.target > 0 ? ((item.count / item.target) * 100).toFixed(1) : 0;
 
-            // 汇总计算
-            if (!summary[item.pcode]) summary[item.pcode] = { c: 0, t: 0, count: 0 };
-            summary[item.pcode].c += item.count;
-            summary[item.pcode].t += (item.target || 0);
-            summary[item.pcode].count++;
+            // 4. 产品汇总逻辑 (依据产品编号 Pcode)
+            var code = item.pcode || "未命名";
+            if (!summaryMap[code]) {
+                summaryMap[code] = { count: 0, target: 0, devices: 0 };
+            }
+            summaryMap[code].count += Number(item.count);
+            summaryMap[code].target += Number(item.target);
+            summaryMap[code].devices += 1;
 
-            html += '<tr class="' + (isAlarm ? 'alarm' : '') + '">' +
+            html += '<tr class="' + (isOk ? '' : 'alarm') + '">' +
                 '<td>' +
-                    '<input class="name-box" type="text" value="' + item.name + '" oninput="edit(' + item.id + ',\'name\',this.value)">' +
-                    '<input class="name-box" style="color:#722ed1;font-size:12px" type="text" value="' + item.pcode + '" oninput="edit(' + item.id + ',\'pcode\',this.value)">' +
+                    '<input class="name-box" value="'+item.name+'" oninput="edit('+item.id+',\'name\',this.value)">' +
+                    '<input class="name-box" style="color:#722ed1;font-size:11px" value="'+item.pcode+'" oninput="edit('+item.id+',\'pcode\',this.value)">' +
                 '</td>' +
-                '<td><input type="number" value="' + item.cyc + '" oninput="edit(' + item.id + ',\'cyc\',this.value)"></td>' +
-                '<td><input type="number" value="' + item.cav + '" oninput="edit(' + item.id + ',\'cav\',this.value)"></td>' +
-                '<td style="color:#1890ff; font-weight:bold">' + hTarget + '</td>' +
-                '<td style="font-size:18px; font-weight:bold">' + item.count + '</td>' +
+                '<td><input type="number" value="'+item.cyc+'" oninput="edit('+item.id+',\'cyc\',this.value)"></td>' +
+                '<td><input type="number" value="'+item.cav+'" oninput="edit('+item.id+',\'cav\',this.value)"></td>' +
+                '<td style="color:var(--primary);font-weight:bold">'+hTarget+'</td>' +
+                '<td style="font-size:18px;font-weight:bold">'+item.count+'</td>' +
+                '<td>'+rate+'%<div class="progress-bar"><div class="progress-fill" style="width:'+Math.min(100,rate)+'%"></div></div></td>' +
+                '<td><span class="status-tag '+(isOk?'status-ok':'status-fail')+'">'+(isOk?'✅ 达标':'❌ 滞后')+'</span></td>' +
+                '<td style="color:#999;font-size:11px">'+item.lastTime+'</td>' +
+                '<td><input type="number" value="'+item.target+'" oninput="edit('+item.id+',\'target\',this.value)"></td>' +
                 '<td>' +
-                    '<div class="rate-text">' + rate + '%</div>' +
-                    '<div class="progress-container"><div class="progress-bar" style="width:' + Math.min(100, rate) + '%"></div></div>' +
-                '</td>' +
-                '<td style="font-size:12px; color:#8c8c8c">' + item.lastTime + '</td>' +
-                '<td><input type="number" value="' + item.target + '" oninput="edit(' + item.id + ',\'target\',this.value)"></td>' +
-                '<td>' +
-                    '<button class="report-btn" onclick="report(' + item.id + ')">报工</button>' +
-                    '<button class="reset-btn" onclick="reset(' + item.id + ')">重置</button>' +
+                    '<button style="background:var(--success);color:white;border:none;padding:10px;border-radius:4px;cursor:pointer" onclick="report('+item.id+')">录入</button>' +
+                    '<button style="border:none;background:none;color:#ccc;font-size:10px;display:block;margin:auto" onclick="reset('+item.id+')">重置</button>' +
                 '</td>' +
             '</tr>';
         }
-        document.getElementById('mainTable').innerHTML = html;
-        localStorage.setItem('MES_V5', JSON.stringify(lines));
+        tbody.innerHTML = html;
+        localStorage.setItem('PROD_SYSTEM_V6', JSON.stringify(lines));
 
-        // 渲染汇总
+        // 渲染汇总表
         var sHtml = '';
-        for (var key in summary) {
-            var s = summary[key];
-            var sRate = s.t > 0 ? ((s.c / s.t) * 100).toFixed(1) : 0;
-            sHtml += '<div class="sum-row">' +
-                '<span><b>' + key + '</b> (' + s.count + '台机)</span>' +
-                '<span>总产量: <b>' + s.c + '</b> / 总进度: <b style="color:var(--success)">' + sRate + '%</b></span>' +
-            '</div>';
+        for (var key in summaryMap) {
+            var s = summaryMap[key];
+            var sRate = s.target > 0 ? ((s.count / s.target) * 100).toFixed(1) : 0;
+            sHtml += '<tr>' +
+                '<td style="font-weight:bold;color:#722ed1">'+key+'</td>' +
+                '<td>'+s.devices+' 台</td>' +
+                '<td style="font-weight:bold">'+s.count+'</td>' +
+                '<td>'+s.target+'</td>' +
+                '<td>'+sRate+'%</td>' +
+            '</tr>';
         }
-        document.getElementById('summaryContent').innerHTML = sHtml || '暂无数据';
+        stody.innerHTML = sHtml || '<tr><td colspan="5">请在上方输入产品编号</td></tr>';
     }
 
     function edit(id, field, val) {
-        for (var i = 0; i < lines.length; i++) {
-            if (lines[i].id === id) {
-                lines[i][field] = (field === 'name' || field === 'pcode') ? val : Number(val);
-                break;
-            }
-        }
-        // 为了输入不卡顿，这里只存数据，不实时render（除非改的是影响计算的字段）
-        localStorage.setItem('MES_V5', JSON.stringify(lines));
-        if(field !== 'name' && field !== 'pcode') {
-             // 延时刷新，避免输入数字时跳动
-             clearTimeout(window.renderTimer);
-             window.renderTimer = setTimeout(render, 1000);
+        var line = lines.find(function(l){ return l.id === id });
+        if(line) {
+            line[field] = (field==='name'||field==='pcode') ? val : Number(val);
+            // 实时更新汇总和计算，但不重绘DOM以防丢失焦点
+            localStorage.setItem('PROD_SYSTEM_V6', JSON.stringify(lines));
+            clearTimeout(window.t);
+            window.t = setTimeout(render, 1500); // 停止输入1.5秒后刷新界面显示计算结果
         }
     }
 
     function report(id) {
-        var val = prompt("请输入新增产量 (例如: 500):");
-        if (val) {
-            for (var i = 0; i < lines.length; i++) {
-                if (lines[i].id === id) {
-                    lines[i].count += Number(val);
-                    var t = new Date();
-                    lines[i].lastTime = t.getHours() + ":" + String(t.getMinutes()).padStart(2, '0') + ":" + String(t.getSeconds()).padStart(2, '0');
-                    break;
-                }
-            }
+        var n = prompt("输入本次新增产量:");
+        if(n) {
+            var line = lines.find(function(l){ return l.id === id });
+            line.count += Number(n);
+            var d = new Date();
+            line.lastTime = d.getHours() + ":" + String(d.getMinutes()).padStart(2,'0') + ":" + String(d.getSeconds()).padStart(2,'0');
             render();
         }
     }
 
     function addRow() {
-        lines.push({ id: Date.now(), name: '新设备', pcode: 'P01', cyc: 60, cav: 1, target: 1000, count: 0, lastTime: '-', start: new Date().getTime() });
+        lines.push({ id: Date.now(), name: '新机台', pcode: 'P01', cyc: 60, cav: 1, target: 1000, count: 0, lastTime: '-', startTime: new Date().getTime() });
         render();
     }
 
     function reset(id) {
-        if(confirm("确定要清零该台设备数据并重新计时吗？")) {
-            for (var i = 0; i < lines.length; i++) {
-                if (lines[i].id === id) {
-                    lines[i].count = 0;
-                    lines[i].start = new Date().getTime();
-                    lines[i].lastTime = '已重置';
-                    break;
-                }
-            }
+        if(confirm("确定重置？")) {
+            var line = lines.find(function(l){ return l.id === id });
+            line.count = 0; line.startTime = new Date().getTime(); line.lastTime = '已重置';
             render();
         }
     }
 
     function exportData() {
-        var csv = "\uFEFF设备,产品,周期,穴数,时目标,已生产,日目标,达成率,更新时间\n";
-        for (var i = 0; i < lines.length; i++) {
-            var l = lines[i];
-            var ht = Math.floor((3600/l.cyc)*l.cav);
-            var rt = ((l.count/l.target)*100).toFixed(1) + "%";
-            csv += l.name + "," + l.pcode + "," + l.cyc + "," + l.cav + "," + ht + "," + l.count + "," + l.target + "," + rt + "," + l.lastTime + "\n";
-        }
-        var blob = new Blob([csv], { type: 'text/csv' });
+        var csv = "\uFEFF设备,产品编号,周期,穴数,产量,目标,更新时间\n";
+        lines.forEach(function(l){ csv += l.name+","+l.pcode+","+l.cyc+","+l.cav+","+l.count+","+l.target+","+l.lastTime+"\n"; });
         var a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "生产报表_" + new Date().toLocaleDateString() + ".csv";
+        a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+        a.download = "生产报表.csv";
         a.click();
     }
 
-    // 每10秒自动检查一次报警状态
-    setInterval(render, 10000);
+    setInterval(render, 10000); // 每10秒自检一次状态
     render();
 </script>
 </body>
